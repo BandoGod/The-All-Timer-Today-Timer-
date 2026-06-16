@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The All-Timer — Crown Your Top 25</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#141019; --bg2:#1b1626; --surface:#241e33; --surface2:#2e2742;
+  --line:#39314f; --text:#f4eee6; --muted:#9a90ae; --muted2:#6f6685;
+  --gold:#f0b43c; --gold-soft:rgba(240,180,60,.16);
+  --pink:#ff4e86; --pink-soft:rgba(255,78,134,.13); --pink-glow:rgba(255,78,134,.45);
+  --cut:#5f5774; --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:radial-gradient(120% 80% at 50% -10%, #221a30 0%, var(--bg) 55%, #0f0c15 100%);
+  color:var(--text); font-family:"Space Grotesk",system-ui,sans-serif;
+  min-height:100%; display:flex; flex-direction:column; align-items:center;
+  padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom));
+  -webkit-tap-highlight-color:transparent;
+}
+.wrap{width:100%; max-width:560px; display:flex; flex-direction:column; gap:18px; flex:1}
+.bar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:4px}
+.brand{display:flex; flex-direction:column; gap:2px}
+.brand .mark{font-family:"Syne",sans-serif; font-weight:800; font-size:21px; letter-spacing:-.02em; color:var(--text); text-shadow:0 0 18px var(--pink-glow)}
+.brand .mark b{color:var(--pink)}
+.brand .sub{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted2); font-family:"Space Mono",monospace}
+.menu-btn{background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:10px; padding:8px 11px; font-size:12px; cursor:pointer; font-family:"Space Mono",monospace; letter-spacing:.05em}
+.menu-btn:hover{border-color:var(--cut); color:var(--text)}
+.stepper{display:flex; gap:6px; align-items:center; justify-content:center; font-family:"Space Mono",monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase}
+.stepper .st{color:var(--muted2); display:flex; align-items:center; gap:6px}
+.stepper .st .dot{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.stepper .st.active{color:var(--text)} .stepper .st.active .dot{background:var(--pink); box-shadow:0 0 10px var(--pink-glow)}
+.stepper .st.done{color:var(--gold)} .stepper .st.done .dot{background:var(--gold)}
+.stepper .arrow{color:var(--muted2)}
+.card{background:linear-gradient(180deg,var(--surface) 0%,var(--bg2) 100%); border:1px solid var(--line); border-radius:var(--radius); padding:22px; position:relative; overflow:hidden}
+.panel{display:flex; flex-direction:column; gap:16px; flex:1; justify-content:center}
+.hero{text-align:center; padding:30px 22px}
+.hero h1{font-family:"Syne",sans-serif; font-weight:800; font-size:clamp(30px,8vw,42px); line-height:1.02; letter-spacing:-.03em; margin-bottom:6px}
+.hero h1 em{font-style:normal; color:var(--pink); text-shadow:0 0 26px var(--pink-glow)}
+.hero p{color:var(--muted); font-size:15px; line-height:1.55; max-width:390px; margin:14px auto 0}
+.stages{display:flex; flex-direction:column; gap:10px; margin:22px 0 4px; text-align:left}
+.stage-row{display:flex; gap:14px; align-items:flex-start; padding:14px 16px; background:var(--surface); border:1px solid var(--line); border-radius:14px}
+.stage-row .n{font-family:"Space Mono",monospace; font-weight:700; color:var(--gold); font-size:13px; padding-top:1px}
+.stage-row .b strong{display:block; font-family:"Syne",sans-serif; font-weight:700; font-size:15px; margin-bottom:3px}
+.stage-row .b span{color:var(--muted); font-size:13px; line-height:1.45}
+.count-pill{display:inline-block; font-family:"Space Mono",monospace; color:var(--gold); background:var(--gold-soft); border:1px solid rgba(240,180,60,.3); padding:3px 10px; border-radius:999px; font-size:13px}
+.up{margin:22px 0 6px; display:flex; flex-direction:column; align-items:center; gap:12px; padding:28px 18px; border:1.5px dashed var(--line); border-radius:16px; background:var(--surface); transition:border-color .15s, background .15s}
+.up.drag{border-color:var(--pink); background:var(--pink-soft)}
+.up-hint{font-family:"Space Mono",monospace; font-size:12px; color:var(--muted2); letter-spacing:.04em}
+.err{color:#ff8585; font-size:13px; margin:10px 0 0; min-height:1.1em; line-height:1.4}
+.how{text-align:left; margin-top:16px; font-size:13px; color:var(--muted); line-height:1.65; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:15px 16px}
+.how a{color:var(--gold); text-underline-offset:2px}
+.how strong{color:var(--text)}
+.btn{font-family:"Syne",sans-serif; font-weight:700; font-size:16px; border:none; border-radius:14px; padding:16px 20px; cursor:pointer; width:100%; transition:transform .08s ease, box-shadow .2s ease}
+.btn:active{transform:scale(.985)}
+.btn-primary{background:var(--pink); color:#1a0c14; box-shadow:0 8px 30px -8px var(--pink-glow)}
+.btn-ghost{background:transparent; color:var(--text); border:1px solid var(--line)}
+.btn-ghost:hover{border-color:var(--cut)}
+.btn-row{display:flex; gap:10px} .btn-row .btn{flex:1}
+.progress-head{display:flex; justify-content:space-between; align-items:baseline; font-family:"Space Mono",monospace; font-size:12px; color:var(--muted)}
+.progress-head .big{color:var(--text)} .progress-head .gold{color:var(--gold)}
+.track{height:6px; background:var(--surface2); border-radius:999px; overflow:hidden; margin-top:8px}
+.fill{height:100%; background:linear-gradient(90deg,var(--gold),var(--pink)); border-radius:999px; transition:width .25s ease; width:0%}
+.spotlight{position:relative}
+.spotlight::before{content:""; position:absolute; inset:-40% 10% auto 10%; height:240px; background:radial-gradient(ellipse at top, var(--pink-soft), transparent 70%); pointer-events:none}
+.song-card{text-align:center; padding:34px 22px; min-height:190px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:10px}
+.seed{font-family:"Space Mono",monospace; font-size:12px; letter-spacing:.12em; color:var(--gold); background:var(--gold-soft); padding:4px 12px; border-radius:999px; border:1px solid rgba(240,180,60,.28)}
+.song-title{font-family:"Syne",sans-serif; font-weight:800; font-size:clamp(24px,6.5vw,32px); line-height:1.08; letter-spacing:-.02em; word-break:break-word}
+.song-artist{color:var(--muted); font-size:16px; font-weight:500; word-break:break-word}
+.kbd-hint{display:flex; justify-content:space-between; font-family:"Space Mono",monospace; font-size:11px; color:var(--muted2); padding:0 4px}
+kbd{background:var(--surface2); border:1px solid var(--line); border-radius:5px; padding:1px 6px; color:var(--muted); font-family:inherit}
+.keep-btn{background:var(--pink); color:#1a0c14; box-shadow:0 8px 30px -10px var(--pink-glow)}
+.cut-btn{background:transparent; color:var(--muted); border:1px solid var(--line)}
+.cut-btn:hover{color:var(--text); border-color:var(--cut)}
+/* audio */
+.audio-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px}
+.pv-left{display:flex;align-items:center;gap:11px;min-width:0}
+.pv-btn{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--pink);background:var(--pink-soft);color:var(--pink);font-size:15px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pv-btn.playing{background:var(--pink);color:#1a0c14;box-shadow:0 0 22px -4px var(--pink-glow)}
+.pv-btn:active{transform:scale(.92)}
+.pv-status{font-family:"Space Mono",monospace;font-size:12px;color:var(--muted);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-status a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+.pv-toggle{display:flex;align-items:center;gap:7px;font-family:"Space Mono",monospace;font-size:11px;color:var(--muted);letter-spacing:.05em;cursor:pointer;user-select:none;flex-shrink:0}
+.pv-toggle .sw{width:34px;height:19px;border-radius:999px;background:var(--surface2);border:1px solid var(--line);position:relative;transition:background .15s}
+.pv-toggle .sw::after{content:"";position:absolute;top:1px;left:1px;width:15px;height:15px;border-radius:50%;background:var(--muted);transition:all .15s}
+.pv-toggle.on .sw{background:var(--gold-soft);border-color:var(--gold)} .pv-toggle.on .sw::after{left:16px;background:var(--gold)}
+.vol-row{display:flex;align-items:center;gap:10px;padding:0 2px;margin-top:-6px}
+.vol-row .ico{font-size:13px;color:var(--muted2)}
+.vol-row input[type=range]{flex:1;accent-color:var(--pink);height:4px;cursor:pointer}
+.vs-intro{text-align:center; font-family:"Syne",sans-serif; font-weight:700; font-size:18px}
+.vs-grid{display:flex; flex-direction:column; gap:12px}
+.vs-card{background:linear-gradient(180deg,var(--surface) 0%,var(--bg2) 100%); border:1.5px solid var(--line); border-radius:16px; padding:18px 18px 20px; cursor:pointer; text-align:center; transition:transform .08s ease, border-color .15s ease, box-shadow .2s ease; display:flex; flex-direction:column; gap:8px; align-items:center; min-height:118px; justify-content:center}
+.vs-card:hover{border-color:var(--pink); box-shadow:0 0 0 1px var(--pink), 0 12px 40px -16px var(--pink-glow)}
+.vs-card:active{transform:scale(.98)}
+.vs-card .vt{font-family:"Syne",sans-serif; font-weight:800; font-size:clamp(19px,5vw,24px); line-height:1.1; letter-spacing:-.02em; word-break:break-word}
+.vs-card .va{color:var(--muted); font-size:14px; word-break:break-word}
+.vs-card .pick{font-family:"Space Mono",monospace; font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted2)}
+.vs-play{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--gold);background:var(--gold-soft);color:var(--gold);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.vs-play.playing{background:var(--gold);color:#1a0c14}
+.vs-play.dead{border-color:var(--line);color:var(--muted2);background:transparent}
+.vs-mid{display:flex; align-items:center; justify-content:center; gap:14px; margin:-4px 0}
+.vs-mid .line{height:1px; flex:1; background:var(--line)} .vs-mid .ball{font-family:"Syne",sans-serif; font-weight:800; color:var(--gold); font-size:14px; letter-spacing:.1em}
+.champ{text-align:center; padding:26px 20px; border:1.5px solid var(--pink); box-shadow:0 0 60px -20px var(--pink-glow), inset 0 0 60px -40px var(--pink)}
+.champ .crown{font-size:13px; font-family:"Space Mono",monospace; letter-spacing:.2em; color:var(--gold); text-transform:uppercase}
+.champ .ct{font-family:"Syne",sans-serif; font-weight:800; font-size:clamp(26px,7vw,36px); line-height:1.05; letter-spacing:-.02em; margin:8px 0 4px; text-shadow:0 0 30px var(--pink-glow)}
+.champ .ca{color:var(--muted); font-size:16px}
+.list{display:flex; flex-direction:column; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+.li{display:flex; gap:14px; align-items:center; background:var(--bg2); padding:13px 16px}
+.li .rank{font-family:"Space Mono",monospace; font-weight:700; color:var(--gold); font-size:14px; min-width:28px; text-align:right}
+.li .info{display:flex; flex-direction:column; gap:1px; min-width:0; flex:1}
+.li .rec{font-family:"Space Mono",monospace; color:var(--muted); font-size:13px; margin-left:auto; white-space:nowrap; padding-left:8px}
+.loglist{display:flex; flex-direction:column; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+.log-row{display:flex; align-items:center; gap:9px; background:var(--bg2); padding:9px 12px; font-size:13px}
+.log-row .ln{font-family:"Space Mono",monospace; color:var(--muted2); font-size:11px; min-width:26px; text-align:right; flex-shrink:0}
+.log-row .lw{font-family:"Syne",sans-serif; font-weight:700; color:var(--text); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.log-row .ld{font-family:"Space Mono",monospace; color:var(--gold); font-size:9px; letter-spacing:.1em; text-transform:uppercase; flex-shrink:0}
+.log-row .ll{color:var(--muted); flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.li .info .t{font-family:"Syne",sans-serif; font-weight:700; font-size:15px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.li .info .a{color:var(--muted); font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.section-label{font-family:"Space Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted2); margin:6px 2px 2px}
+.hm .li .rank{color:var(--muted2)}
+.note{font-size:13px; color:var(--muted); line-height:1.5; text-align:center}
+.toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface2); border:1px solid var(--line); color:var(--text); padding:11px 18px; border-radius:999px; font-size:13px; opacity:0; pointer-events:none; transition:all .25s ease; z-index:50}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+.foot{text-align:center; font-size:11px; color:var(--muted2); font-family:"Space Mono",monospace; letter-spacing:.05em; padding-top:4px}
+.undo-link{background:none;border:none;color:var(--muted);font-family:"Space Mono",monospace;font-size:12px;cursor:pointer;letter-spacing:.05em;text-decoration:underline;text-underline-offset:3px}
+.undo-link:hover{color:var(--text)} .undo-link:disabled{opacity:.35;cursor:default;text-decoration:none}
+.row-between{display:flex;justify-content:space-between;align-items:center}
+@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+:focus-visible{outline:2px solid var(--pink); outline-offset:2px; border-radius:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="brand">
+      <div class="mark">THE ALL&#8209;<b>TIMER</b></div>
+      <div class="sub" id="barsub">Crown your top 25</div>
+    </div>
+    <button class="menu-btn" id="resetBtn">Reset</button>
+  </div>
+  <div class="stepper" id="stepper">
+    <span class="st" data-step="triage"><span class="dot"></span>Triage</span>
+    <span class="arrow">&rsaquo;</span>
+    <span class="st" data-step="rank"><span class="dot"></span>Matchups</span>
+    <span class="arrow">&rsaquo;</span>
+    <span class="st" data-step="done"><span class="dot"></span>Top 25</span>
+  </div>
+  <div id="view" class="panel"></div>
+  <div class="foot" id="foot"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let SONGS=[]; let TOTAL=0;
+const KEY = "alltimer_v1";
+const PVKEY = "alltimer_pv";
+const SONGSKEY = "alltimer_songs";
+const TARGET = 25;
+
+/* ---------- storage: Claude artifact store -> localStorage -> memory ---------- */
+const Store = {
+  mode: (typeof window!=="undefined" && window.storage) ? "cloud" : ((()=>{try{localStorage.setItem("_t","1");localStorage.removeItem("_t");return "local";}catch(e){return "mem";}})()),
+  mem:{},
+  async get(k){
+    try{ if(this.mode==="cloud"){ const r=await window.storage.get(k); return r?r.value:null; } }catch(e){}
+    if(this.mode==="local"){ try{ return localStorage.getItem(k); }catch(e){} }
+    return (k in this.mem)?this.mem[k]:null;
+  },
+  async set(k,v){
+    this.mem[k]=v;
+    try{ if(this.mode==="cloud"){ await window.storage.set(k,v); return; } }catch(e){}
+    if(this.mode==="local"){ try{ localStorage.setItem(k,v); }catch(e){} }
+  },
+  async del(k){
+    delete this.mem[k];
+    try{ if(this.mode==="cloud"){ await window.storage.delete(k); return; } }catch(e){}
+    if(this.mode==="local"){ try{ localStorage.removeItem(k); }catch(e){} }
+  }
+};
+
+let S=null, undoStack=[], statsOpen=false;
+const $=s=>document.querySelector(s);
+const view=$("#view");
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),1500);}
+async function save(){ await Store.set(KEY, JSON.stringify(S)); }
+function freshState(){ return { stage:"intro", opts:{autoplay:true, volume:0.4}, triage:{ order:shuffle([...Array(TOTAL).keys()]), pos:0, kept:[], hist:[] }, rank:null, result:null }; }
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function spotifyURL(s){return "https://open.spotify.com/track/"+s.id;}
+
+/* ========== AUDIO PREVIEWS (Apple Music 30s clips, matched by title+artist) ========== */
+const previewCache={}; let pvDirty=false,pvTimer=null;
+function savePvCache(){ pvDirty=true; clearTimeout(pvTimer); pvTimer=setTimeout(async()=>{ if(!pvDirty)return; pvDirty=false; try{ await Store.set(PVKEY, JSON.stringify(previewCache)); }catch(e){} },2500); }
+function cleanTitle(t){ return t.replace(/\(.*?\)|\[.*?\]/g,"").replace(/\s-\s.*$/,"").trim(); }
+function norm(s){ return s.toLowerCase().replace(/\(.*?\)|\[.*?\]/g,"").replace(/feat\.?.*$/,"").replace(/[^a-z0-9 ]/g,"").trim(); }
+function fetchJSON(url){ return new Promise((res,rej)=>{ const c=new AbortController(); const t=setTimeout(()=>c.abort(),7000); fetch(url,{signal:c.signal}).then(r=>r.json()).then(d=>{clearTimeout(t);res(d);}).catch(e=>{clearTimeout(t);rej(e);}); }); }
+function jsonp(url){ return new Promise((res,rej)=>{ const cb="__pv"+Math.random().toString(36).slice(2); const s=document.createElement("script"); const t=setTimeout(()=>{cleanup();rej(0);},7000); function cleanup(){clearTimeout(t);delete window[cb];s.remove();} window[cb]=d=>{cleanup();res(d);}; s.onerror=()=>{cleanup();rej(0);}; s.src=url+"&callback="+cb; document.body.appendChild(s); }); }
+async function lookupPreview(song){
+  if(song.id in previewCache) return previewCache[song.id];
+  const firstArtist=(song.a.split(",")[0]||"").trim();
+  const term=encodeURIComponent((cleanTitle(song.t)+" "+firstArtist).trim());
+  const url=`https://itunes.apple.com/search?term=${term}&entity=song&limit=6`;
+  let data=null;
+  try{ data=await fetchJSON(url); }catch(e){ try{ data=await jsonp(url); }catch(e2){} }
+  let preview=null;
+  if(data&&data.results&&data.results.length){
+    const nt=norm(song.t), na=norm(firstArtist);
+    let best=data.results.find(r=>r.previewUrl&&norm(r.artistName).includes(na)&&na.length>1)
+          || data.results.find(r=>r.previewUrl&&norm(r.trackName).includes(nt.slice(0,10))&&nt.length>3)
+          || data.results.find(r=>r.previewUrl);
+    if(best&&best.previewUrl) preview=best.previewUrl;
+  }
+  previewCache[song.id]={url:preview}; savePvCache();
+  return previewCache[song.id];
+}
+const Player={
+  el:null, curId:null, side:null, target:0.4, _fade:null,
+  init(){ this.el=new Audio(); this.el.preload="none"; this.el.volume=this.target; this.el.addEventListener("ended",()=>{ this._emit("ended"); }); },
+  _cb:null, _emit(s){ if(this._cb) this._cb(s); },
+  setVolume(v){ this.target=Math.max(0,Math.min(1,v)); if(this.el && !this._fade) this.el.volume=this.target; },
+  fadeIn(){ if(!this.el) return; clearInterval(this._fade); this.el.volume=0; let v=0; this._fade=setInterval(()=>{ v+=this.target/8; if(v>=this.target){ this.el.volume=this.target; clearInterval(this._fade); this._fade=null; } else { this.el.volume=v; } },45); },
+  stop(){ if(this.el){ this.el.pause(); } clearInterval(this._fade); this._fade=null; this.curId=null; this.side=null; this._cb=null; },
+  async play(song, cb, side){
+    this._cb=cb; this.side=side||null;
+    this._emit("loading");
+    const pv=await lookupPreview(song);
+    if(this._cb!==cb) return;            // a newer request superseded this one
+    if(!pv.url){ this._emit("none"); return; }
+    try{ this.el.src=pv.url; this.el.currentTime=0; this.curId=song.id; await this.el.play(); this.fadeIn(); this._emit("playing"); }
+    catch(e){ this._emit("blocked"); }
+  },
+  toggle(song,cb,side){ if(this.curId===song.id && this.el && !this.el.paused){ this.el.pause(); this.curId=null; cb&&cb("paused"); } else { this.play(song,cb,side); } }
+};
+
+/* ========== STEPPER ========== */
+function setStepper(stage){
+  const map={intro:"triage",triage:"triage",transition:"rank",rank:"rank",done:"done"};
+  const order=["triage","rank","done"], ci=order.indexOf(map[stage]||"triage");
+  document.querySelectorAll(".stepper .st").forEach(el=>{ const i=order.indexOf(el.dataset.step); el.classList.remove("active","done"); if(i<ci)el.classList.add("done"); else if(i===ci)el.classList.add("active"); });
+}
+
+/* ========== RENDER ========== */
+function render(){
+  Player.stop();
+  setStepper(S.stage);
+  $("#foot").textContent = Store.mode==="cloud" ? `${TOTAL} songs · progress saved` : (Store.mode==="local" ? `${TOTAL} songs · saved in this browser` : `${TOTAL} songs · progress not saved here`);
+  if(S.stage==="intro") return renderIntro();
+  if(S.stage==="triage") return renderTriage();
+  if(S.stage==="transition") return renderTransition();
+  if(S.stage==="rank") return renderRank();
+  if(S.stage==="done") return renderDone();
+}
+
+function renderIntro(){
+  $("#barsub").textContent="Crown your top 25";
+  view.innerHTML=`
+    <div class="card hero">
+      <h1>Crown your<br><em>Top 25</em> of all time</h1>
+      <p>You loaded <span class="count-pill">${TOTAL} songs</span>. Hear a 30-second preview of each one, then rank in two passes — no bracket luck deciding it.</p>
+      <div class="stages">
+        <div class="stage-row"><div class="n">01</div><div class="b"><strong>Triage — Keep or Cut</strong><span>A clip auto-plays for each song. Snap-judge it. Most are an easy cut; this trims to your true contenders.</span></div></div>
+        <div class="stage-row"><div class="n">02</div><div class="b"><strong>Matchups — A vs B</strong><span>Survivors go head-to-head. Tap a song to hear it, pick the better one; we sort them into a ranked Top 25.</span></div></div>
+      </div>
+      <button class="btn btn-primary" id="startBtn">Start triage</button>
+      <button class="btn btn-ghost" id="newCsvBtn" style="margin-top:10px">Use a different CSV</button>
+      <p style="margin-top:14px;font-size:12.5px">Stop anytime — your spot is saved.</p>
+    </div>`;
+  $("#startBtn").onclick=()=>{ S.stage="triage"; save(); render(); };
+  $("#newCsvBtn").onclick=newCSV;
+}
+
+/* ---- triage ---- */
+function renderTriage(){
+  const tr=S.triage;
+  if(tr.pos>=tr.order.length) return finishTriage();
+  $("#barsub").textContent=`${tr.kept.length} kept so far`;
+  const idx=tr.order[tr.pos], s=SONGS[idx], pct=tr.pos/tr.order.length*100;
+  view.innerHTML=`
+    <div>
+      <div class="progress-head"><span><span class="big">${tr.pos+1}</span> / ${tr.order.length}</span><span class="gold">&#9733; ${tr.kept.length} kept</span></div>
+      <div class="track"><div class="fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="card spotlight"><div class="song-card">
+      <span class="seed">SEED #${String(idx+1).padStart(4,"0")}</span>
+      <div class="song-title">${esc(s.t)}</div>
+      <div class="song-artist">${esc(s.a)}</div>
+    </div></div>
+    <div class="audio-bar">
+      <div class="pv-left">
+        <button class="pv-btn" id="pvBtn" aria-label="Play preview">&#9658;</button>
+        <span class="pv-status" id="pvStatus">&nbsp;</span>
+      </div>
+      <div class="pv-toggle ${S.opts.autoplay?"on":""}" id="pvToggle"><span>Autoplay</span><span class="sw"></span></div>
+    </div>
+    <div class="vol-row"><span class="ico">&#128264;</span><input type="range" id="vol" min="0" max="100" value="${Math.round((S.opts.volume??0.4)*100)}" aria-label="Volume"><span class="ico">&#128266;</span></div>
+    <div class="kbd-hint"><span><kbd>&larr;</kbd> cut &nbsp; <kbd>space</kbd> play</span><span>keep <kbd>&rarr;</kbd></span></div>
+    <div class="btn-row">
+      <button class="btn cut-btn" id="cutBtn">&#10005;&nbsp; Cut</button>
+      <button class="btn keep-btn" id="keepBtn">&#9733;&nbsp; Keep</button>
+    </div>
+    <div class="row-between">
+      <button class="undo-link" id="undoBtn" ${tr.hist.length?"":"disabled"}>&larr; undo last</button>
+      <button class="undo-link" id="skipEndBtn">finish triage now &rarr;</button>
+    </div>`;
+  $("#cutBtn").onclick=()=>triageChoice(false);
+  $("#keepBtn").onclick=()=>triageChoice(true);
+  $("#undoBtn").onclick=triageUndo;
+  $("#skipEndBtn").onclick=()=>{ if(confirm("End triage here? Songs you haven't reviewed yet won't be considered.")){ tr.pos=tr.order.length; save(); render(); } };
+  $("#pvToggle").onclick=()=>{ S.opts.autoplay=!S.opts.autoplay; save(); $("#pvToggle").classList.toggle("on",S.opts.autoplay); if(S.opts.autoplay) Player.play(s,triageAudioState); else { Player.stop(); triageAudioState("paused"); } };
+  $("#vol").oninput=(e)=>{ S.opts.volume=e.target.value/100; Player.setVolume(S.opts.volume); save(); };
+  setupTriageAudio(s);
+}
+function triageAudioState(state){
+  const btn=$("#pvBtn"), st=$("#pvStatus"); if(!btn||!st) return;
+  const cur=SONGS[S.triage.order[S.triage.pos]];
+  btn.style.display="";
+  if(state==="loading"){ st.textContent="Loading preview…"; }
+  else if(state==="playing"){ btn.innerHTML="&#10073;&#10073;"; btn.classList.add("playing"); st.textContent="Preview playing"; }
+  else if(state==="paused"){ btn.innerHTML="&#9658;"; btn.classList.remove("playing"); st.textContent="Paused"; }
+  else if(state==="ended"){ btn.innerHTML="&#9658;"; btn.classList.remove("playing"); st.textContent="Replay"; }
+  else if(state==="blocked"){ btn.innerHTML="&#9658;"; btn.classList.remove("playing"); st.textContent="Tap play to hear"; }
+  else if(state==="none"){ btn.style.display="none"; st.innerHTML=`No preview &middot; <a href="${spotifyURL(cur)}" target="_blank" rel="noopener">open in Spotify</a>`; }
+}
+function setupTriageAudio(s){
+  $("#pvBtn").onclick=()=>Player.toggle(s,triageAudioState);
+  if(S.opts.autoplay) Player.play(s,triageAudioState); else triageAudioState("paused");
+}
+function triageChoice(keep){
+  const tr=S.triage, idx=tr.order[tr.pos];
+  tr.hist.push({pos:tr.pos,kept:keep,idx}); if(tr.hist.length>250)tr.hist.shift();
+  if(keep) tr.kept.push(idx);
+  tr.pos++; save(); render();
+}
+function triageUndo(){
+  const tr=S.triage, last=tr.hist.pop(); if(!last)return;
+  if(last.kept){ const k=tr.kept.lastIndexOf(last.idx); if(k>=0)tr.kept.splice(k,1); }
+  tr.pos=last.pos; save(); render();
+}
+function finishTriage(){ S.stage="transition"; save(); render(); }
+
+/* ---- transition ---- */
+function estMatchups(n){ return n<2?0:Math.round(n*Math.log2(n)*0.78); }
+function renderTransition(){
+  const kept=S.triage.kept, n=kept.length;
+  $("#barsub").textContent=`${n} made the cut`;
+  if(n===0){ view.innerHTML=`<div class="card hero"><h1>Everything got cut</h1><p>No songs survived, so there's nothing to rank.</p><button class="btn btn-primary" id="redo">Run triage again</button></div>`; $("#redo").onclick=redoTriage; return; }
+  if(n===1){ const s=SONGS[kept[0]]; view.innerHTML=`<div class="card hero"><h1>One survivor</h1><p>Only one song made it, so it wins by default:</p><div class="champ card" style="margin-top:8px"><div class="crown">&#127942; Champion</div><div class="ct">${esc(s.t)}</div><div class="ca">${esc(s.a)}</div></div><button class="btn btn-ghost" id="redo" style="margin-top:14px">Keep more songs</button></div>`; $("#redo").onclick=redoTriage; return; }
+  const est=estMatchups(n);
+  view.innerHTML=`
+    <div class="card hero">
+      <h1><em>${n}</em> contenders</h1>
+      <p>These survived triage. Now they fight it out — roughly <span class="count-pill">~${est} matchups</span> to sort into your Top 25.</p>
+      ${n>180?`<p class="note" style="margin-top:10px;color:var(--gold)">That's a big field. Trimming more makes ranking much faster.</p>`:""}
+      <button class="btn btn-primary" id="go" style="margin-top:8px">Start matchups</button>
+      <div class="btn-row" style="margin-top:10px"><button class="btn btn-ghost" id="trim">Trim survivors more</button></div>
+    </div>`;
+  $("#go").onclick=startRanking;
+  $("#trim").onclick=()=>{ S.triage={order:shuffle(kept),pos:0,kept:[],hist:[]}; S.stage="triage"; save(); render(); };
+}
+function redoTriage(){ S.triage={order:shuffle([...Array(TOTAL).keys()]),pos:0,kept:[],hist:[]}; S.stage="triage"; save(); render(); }
+
+/* ---- ranking: resumable bottom-up merge sort ---- */
+function startRanking(){ const arr=shuffle(S.triage.kept); S.rank={arr,n:arr.length,width:1,i:0,output:[],cur:null,done:0,est:estMatchups(arr.length),log:[]}; S.stage="rank"; statsOpen=false; undoStack=[]; save(); advance(); }
+function totalPasses(n){ return Math.max(1,Math.ceil(Math.log2(n))); }
+function advance(){
+  const r=S.rank;
+  while(true){
+    if(r.width>=r.n){ finishRanking(); return; }
+    if(r.cur===null){
+      if(r.i>=r.n){ r.arr=r.output; r.output=[]; r.width*=2; r.i=0; if(r.width>=r.n){ finishRanking(); return; } continue; }
+      const ls=r.i,le=Math.min(r.i+r.width,r.n),rs=le,re=Math.min(r.i+2*r.width,r.n);
+      r.cur={left:r.arr.slice(ls,le),right:r.arr.slice(rs,re),li:0,ri:0,merged:[]};
+    }
+    const c=r.cur;
+    if(c.li<c.left.length&&c.ri<c.right.length){ save(); renderRank(); return; }
+    while(c.li<c.left.length)c.merged.push(c.left[c.li++]);
+    while(c.ri<c.right.length)c.merged.push(c.right[c.ri++]);
+    r.output.push(...c.merged); r.i+=2*r.width; r.cur=null;
+  }
+}
+function rankChoice(side){
+  const r=S.rank,c=r.cur;
+  undoStack.push(JSON.stringify(r)); if(undoStack.length>80)undoStack.shift();
+  const a=c.left[c.li], b=c.right[c.ri];
+  if(!r.log) r.log=[];
+  if(side==="left"){ c.merged.push(c.left[c.li++]); r.log.push({w:a,l:b}); }
+  else { c.merged.push(c.right[c.ri++]); r.log.push({w:b,l:a}); }
+  r.done++; save(); advance();
+}
+function rankUndo(){ if(!undoStack.length){toast("Nothing to undo");return;} S.rank=JSON.parse(undoStack.pop()); save(); render(); }
+function renderRank(){
+  const r=S.rank,c=r.cur, a=SONGS[c.left[c.li]], b=SONGS[c.right[c.ri]];
+  const passNo=Math.round(Math.log2(r.width))+1, passes=totalPasses(r.n), overall=Math.min(99,Math.round(r.done/Math.max(1,r.est)*100));
+  $("#barsub").textContent=`Matchup ${r.done+1}`;
+  view.innerHTML=`
+    <div>
+      <div class="progress-head"><span>Round <span class="big">${Math.min(passNo,passes)}</span> / ${passes}</span><span class="gold">~${overall}%</span></div>
+      <div class="track"><div class="fill" style="width:${overall}%"></div></div>
+    </div>
+    <div class="vs-intro">Which is better?</div>
+    <div class="vs-grid">
+      <div class="vs-card" id="pickA"><button class="vs-play" id="playA" aria-label="Play A">&#9658;</button><div class="vt">${esc(a.t)}</div><div class="va">${esc(a.a)}</div><div class="pick" id="pickAlbl">tap card to choose</div></div>
+      <div class="vs-mid"><span class="line"></span><span class="ball">VS</span><span class="line"></span></div>
+      <div class="vs-card" id="pickB"><button class="vs-play" id="playB" aria-label="Play B">&#9658;</button><div class="vt">${esc(b.t)}</div><div class="va">${esc(b.a)}</div><div class="pick" id="pickBlbl">tap card to choose</div></div>
+    </div>
+    <div class="kbd-hint" style="margin-top:2px"><span><kbd>1</kbd>/<kbd>&larr;</kbd> top &nbsp; <kbd>q</kbd>/<kbd>w</kbd> play</span><span>bottom <kbd>2</kbd>/<kbd>&rarr;</kbd></span></div>
+    <div class="row-between"><button class="undo-link" id="undoBtn" ${undoStack.length?"":"disabled"}>&larr; undo last</button><span class="undo-link" style="text-decoration:none;cursor:default;opacity:.6">${r.done} done</span></div>`;
+  $("#pickA").onclick=()=>rankChoice("left");
+  $("#pickB").onclick=()=>rankChoice("right");
+  $("#undoBtn").onclick=rankUndo;
+  setupRankAudio(a,b);
+}
+function setupRankAudio(a,b){
+  const bA=$("#playA"), bB=$("#playB"), lA=$("#pickAlbl"), lB=$("#pickBlbl");
+  function reset(){ [bA,bB].forEach(x=>{x.classList.remove("playing");x.innerHTML="&#9658;";}); }
+  function mk(btn,lbl,other){ return st=>{
+    if(st==="loading"){ lbl.textContent="loading…"; }
+    else if(st==="playing"){ reset(); btn.classList.add("playing"); btn.innerHTML="&#10073;&#10073;"; lbl.textContent="playing"; }
+    else if(st==="paused"||st==="ended"){ btn.classList.remove("playing"); btn.innerHTML="&#9658;"; lbl.textContent="tap card to choose"; }
+    else if(st==="blocked"){ btn.innerHTML="&#9658;"; lbl.textContent="tap again to play"; }
+    else if(st==="none"){ btn.classList.add("dead"); lbl.innerHTML=`<a href="${spotifyURL(st==="none"&&btn===bA?a:b)}" target="_blank" rel="noopener">Spotify</a>`; }
+  };}
+  bA.onclick=e=>{ e.stopPropagation(); Player.toggle(a,mk(bA,lA),"A"); };
+  bB.onclick=e=>{ e.stopPropagation(); Player.toggle(b,mk(bB,lB),"B"); };
+}
+function finishRanking(){ S.rank.arr = S.rank.output.length===S.rank.n ? S.rank.output : S.rank.arr; S.result=S.rank.arr; S.stage="done"; save(); render(); }
+
+/* ---- results ---- */
+function renderDone(){
+  if(statsOpen) return renderStats();
+  const res=S.result, n=res.length, champ=SONGS[res[0]], top=res.slice(1,TARGET), hm=res.slice(TARGET,TARGET+10);
+  $("#barsub").textContent="Your all-time list";
+  view.innerHTML=`
+    <div class="card champ"><div class="crown">&#127942; #1 of all time</div><div class="ct">${esc(champ.t)}</div><div class="ca">${esc(champ.a)}</div></div>
+    ${top.length?`<div class="section-label">The rest of the top ${Math.min(TARGET,n)}</div><div class="list">${top.map((idx,i)=>liRow(i+2,idx)).join("")}</div>`:""}
+    ${hm.length?`<div class="section-label">Honorable mentions</div><div class="list hm">${hm.map((idx,i)=>liRow(i+TARGET+1,idx)).join("")}</div>`:""}
+    <p class="note" style="margin-top:14px">Crowned from ${TOTAL} songs &middot; ${S.triage.kept.length} kept &middot; ${S.rank?S.rank.done:0} matchups</p>
+    <div class="btn-row" style="margin-top:6px"><button class="btn btn-ghost" id="copyBtn">Copy list</button><button class="btn btn-primary" id="rerankBtn">Re-rank these</button></div>
+    <button class="btn btn-ghost" id="statsBtn" style="margin-top:10px">Match breakdown</button>
+    <button class="btn btn-ghost" id="overBtn" style="margin-top:10px">Start completely over</button>`;
+  $("#copyBtn").onclick=()=>{ const lines=res.slice(0,TARGET).map((idx,i)=>`${i+1}. ${SONGS[idx].t} — ${SONGS[idx].a}`).join("\n"); navigator.clipboard.writeText("My Top "+Math.min(TARGET,n)+" of All Time\n\n"+lines).then(()=>toast("Top 25 copied")).catch(()=>toast("Copy failed")); };
+  $("#rerankBtn").onclick=()=>{ S.triage.kept=[...S.result]; startRanking(); };
+  $("#statsBtn").onclick=()=>{ statsOpen=true; render(); };
+  $("#overBtn").onclick=fullReset;
+}
+function computeRecords(){ const w={},l={}; const log=(S.rank&&S.rank.log)||[]; log.forEach(m=>{ w[m.w]=(w[m.w]||0)+1; l[m.l]=(l[m.l]||0)+1; }); return {w,l}; }
+function renderStats(){
+  $("#barsub").textContent="Match breakdown";
+  const res=S.result||[], {w,l}=computeRecords(), log=(S.rank&&S.rank.log)||[];
+  const standings=res.map((idx,i)=>({idx,rank:i+1,w:w[idx]||0,l:l[idx]||0}));
+  view.innerHTML=`
+    <div class="row-between"><button class="undo-link" id="backBtn">&larr; back to list</button><span class="undo-link" style="text-decoration:none;cursor:default;opacity:.6">${standings.length} contenders &middot; ${log.length} matchups</span></div>
+    <div class="section-label">Standings &middot; head-to-head record</div>
+    <div class="list" style="max-height:300px;overflow:auto">${standings.map(s=>`<div class="li"><div class="rank">${s.rank}</div><div class="info"><div class="t">${esc(SONGS[s.idx].t)}</div><div class="a">${esc(SONGS[s.idx].a)}</div></div><div class="rec">${s.w}&ndash;${s.l}</div></div>`).join("")}</div>
+    <div class="section-label">Every matchup, in order</div>
+    ${log.length?`<div class="loglist" style="max-height:340px;overflow:auto">${log.map((m,i)=>`<div class="log-row"><span class="ln">${i+1}</span><span class="lw">${esc(SONGS[m.w].t)}</span><span class="ld">beat</span><span class="ll">${esc(SONGS[m.l].t)}</span></div>`).join("")}</div>`:`<p class="note">No matchups were recorded for this run.</p>`}
+    <button class="btn btn-ghost" id="copyStatsBtn" style="margin-top:12px">Copy breakdown</button>
+    <button class="btn btn-primary" id="backBtn2" style="margin-top:10px">Back to Top 25</button>`;
+  const back=()=>{ statsOpen=false; render(); };
+  $("#backBtn").onclick=back; $("#backBtn2").onclick=back;
+  $("#copyStatsBtn").onclick=()=>{
+    const txt="STANDINGS (rank · song · record)\n"+standings.map(s=>`${s.rank}. ${SONGS[s.idx].t} — ${SONGS[s.idx].a}  (${s.w}-${s.l})`).join("\n")+"\n\nMATCHUPS\n"+log.map((m,i)=>`${i+1}. ${SONGS[m.w].t} beat ${SONGS[m.l].t}`).join("\n");
+    navigator.clipboard.writeText(txt).then(()=>toast("Breakdown copied")).catch(()=>toast("Copy failed"));
+  };
+}
+function liRow(rank,idx){ const s=SONGS[idx]; return `<div class="li"><div class="rank">${rank}</div><div class="info"><div class="t">${esc(s.t)}</div><div class="a">${esc(s.a)}</div></div></div>`; }
+
+async function fullReset(){ if(!SONGS.length){ renderUpload(); return; } if(!confirm("Wipe all progress and start over? (Your uploaded songs stay loaded.)"))return; await Store.del(KEY); S=freshState(); undoStack=[]; statsOpen=false; await save(); render(); }
+
+/* ---- keyboard ---- */
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT")return;
+  if(S.stage==="triage"){
+    const s=SONGS[S.triage.order[S.triage.pos]];
+    if(e.key==="ArrowRight")triageChoice(true);
+    else if(e.key==="ArrowLeft")triageChoice(false);
+    else if(e.key===" "){ e.preventDefault(); Player.toggle(s,triageAudioState); }
+    else if(e.key.toLowerCase()==="u")triageUndo();
+  } else if(S.stage==="rank"){
+    if(e.key==="ArrowLeft"||e.key==="1")rankChoice("left");
+    else if(e.key==="ArrowRight"||e.key==="2")rankChoice("right");
+    else if(e.key.toLowerCase()==="u")rankUndo();
+    else if(e.key.toLowerCase()==="q"){ const c=S.rank.cur; Player.toggle(SONGS[c.left[c.li]], st=>{const l=$("#pickAlbl");if(l&&st==="playing")l.textContent="playing";}, "A"); }
+    else if(e.key.toLowerCase()==="w"){ const c=S.rank.cur; Player.toggle(SONGS[c.right[c.ri]], st=>{const l=$("#pickBlbl");if(l&&st==="playing")l.textContent="playing";}, "B"); }
+  }
+});
+
+/* ================= CSV UPLOAD & LIBRARY ================= */
+function parseCSV(text){
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+  const rows=[]; let row=[], field="", i=0, inq=false;
+  while(i<text.length){
+    const c=text[i];
+    if(inq){
+      if(c==='"'){ if(text[i+1]==='"'){ field+='"'; i+=2; continue; } inq=false; i++; continue; }
+      field+=c; i++; continue;
+    } else {
+      if(c==='"'){ inq=true; i++; continue; }
+      if(c===','){ row.push(field); field=""; i++; continue; }
+      if(c==='\r'){ i++; continue; }
+      if(c==='\n'){ row.push(field); rows.push(row); row=[]; field=""; i++; continue; }
+      field+=c; i++; continue;
+    }
+  }
+  if(field.length||row.length){ row.push(field); rows.push(row); }
+  return rows;
+}
+function buildSongs(rows){
+  if(!rows.length) return [];
+  const header=rows[0].map(h=>h.trim().toLowerCase());
+  const find=(...names)=>{ for(const n of names){ const i=header.indexOf(n); if(i>=0) return i; } return -1; };
+  const ti=find("track name","track","name","title","song","song name");
+  const ai=find("artist name(s)","artist name","artist names","artist","artists","artist(s)");
+  const ui=find("track uri","uri","spotify track id","track id","spotify id");
+  if(ti<0) return null;
+  const out=[], seen=new Set();
+  for(let r=1;r<rows.length;r++){
+    const row=rows[r]; if(!row) continue;
+    const t=(row[ti]||"").trim(); if(!t) continue;
+    let a=ai>=0?(row[ai]||"").trim():""; a=a.replace(/;/g,", ");
+    let id="";
+    if(ui>=0){ let u=(row[ui]||"").trim(); if(u){ if(u.includes("/")) u=u.split("/").pop().split("?")[0]; id=u.includes(":")?u.split(":").pop():u; } }
+    const key=t.toLowerCase()+"|"+a.toLowerCase();
+    if(seen.has(key)) continue; seen.add(key);
+    out.push({t,a,id});
+  }
+  return out;
+}
+function renderUpload(){
+  setStepper("intro");
+  $("#barsub").textContent="Load your songs";
+  $("#foot").textContent="Your CSV stays in your browser — nothing is uploaded to a server";
+  view.innerHTML=`
+    <div class="card hero">
+      <h1>Crown your<br><em>Top 25</em></h1>
+      <p>Upload a CSV of your songs, preview each one, and rank them head-to-head down to a personal Top 25.</p>
+      <div class="up" id="drop">
+        <input type="file" id="file" accept=".csv,text/csv,text/plain" hidden>
+        <button class="btn btn-primary" id="pick" style="max-width:260px">Choose CSV file</button>
+        <div class="up-hint">or drag &amp; drop it here</div>
+      </div>
+      <p class="err" id="err"></p>
+      <div class="how">
+        <strong>No CSV yet?</strong> Export your Spotify library or any playlist for free with <a href="https://exportify.net" target="_blank" rel="noopener">Exportify</a> — sign in with Spotify, download the playlist, and drop that file here.<br><br>
+        Any CSV works as long as it has a song-title column. Exportify's <em>Track Name</em>, <em>Artist Name(s)</em> and <em>Track URI</em> columns give the best results (artist labels + audio previews).
+      </div>
+    </div>`;
+  const fileEl=$("#file"), drop=$("#drop"), err=$("#err");
+  $("#pick").onclick=()=>fileEl.click();
+  fileEl.onchange=()=>{ if(fileEl.files[0]) handleFile(fileEl.files[0]); };
+  ["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("drag");}));
+  ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("drag");}));
+  drop.addEventListener("drop",e=>{ const f=e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) handleFile(f); });
+  function handleFile(file){
+    err.textContent="";
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const songs=buildSongs(parseCSV(String(rd.result)));
+        if(songs===null){ err.textContent='Couldn\u2019t find a song-title column. Make sure the CSV has a "Track Name" (or "Title") column.'; return; }
+        if(!songs.length){ err.textContent="That CSV didn\u2019t contain any songs."; return; }
+        startWithSongs(songs);
+      }catch(e){ err.textContent="Couldn\u2019t read that file — is it a .csv?"; }
+    };
+    rd.onerror=()=>{ err.textContent="Couldn\u2019t read that file."; };
+    rd.readAsText(file);
+  }
+}
+async function startWithSongs(songs){ SONGS=songs; TOTAL=songs.length; await Store.set(SONGSKEY, JSON.stringify(songs)); S=freshState(); undoStack=[]; statsOpen=false; await save(); render(); }
+async function newCSV(){ if(!confirm("Load a different CSV? This clears the current songs and your ranking progress."))return; await Store.del(KEY); await Store.del(SONGSKEY); SONGS=[]; TOTAL=0; S=null; undoStack=[]; renderUpload(); }
+
+/* ---- boot ---- */
+$("#resetBtn").onclick=fullReset;
+(async function init(){
+  Player.init();
+  const pvRaw=await Store.get(PVKEY); if(pvRaw){ try{ Object.assign(previewCache, JSON.parse(pvRaw)); }catch(e){} }
+  const songsRaw=await Store.get(SONGSKEY);
+  if(songsRaw){ try{ SONGS=JSON.parse(songsRaw)||[]; TOTAL=SONGS.length; }catch(e){ SONGS=[]; TOTAL=0; } }
+  if(!SONGS.length){ renderUpload(); return; }
+  const raw=await Store.get(KEY);
+  if(raw){ try{ S=JSON.parse(raw); }catch(e){ S=freshState(); } } else { S=freshState(); }
+  if(!S.stage) S=freshState();
+  if(!S.opts) S.opts={autoplay:true, volume:0.4};
+  if(S.opts.volume==null) S.opts.volume=0.4;
+  Player.setVolume(S.opts.volume);
+  render();
+})();
+</script>
+</body>
+</html>
