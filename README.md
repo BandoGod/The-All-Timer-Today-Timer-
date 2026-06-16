@@ -1,3 +1,6 @@
+https://bandogod.github.io/The-All-Timer-Today-Timer/
+
+
 I wanted a way to rank my favorite songs without having to do a giant bracket, so I made this little project. It lets you go through a big list of songs, listen to previews, and slowly narrow everything down into a Top 25.
 
 It's all in one HTML file, so you don't have to install anything or make an account.
